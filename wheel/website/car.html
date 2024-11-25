@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Mecanum Robot Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
+        }
+        #dashboard {
+            width: 800px;
+            margin: 50px auto;
+            text-align: center;
+        }
+        #car {
+            position: relative;
+            width: 200px;
+            height: 400px;
+            margin: 0 auto;
+            margin-top: 70px;
+            background-color: #333;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .wheel {
+            position: absolute;
+            width: 80px;
+            height: 100px;
+            background-color: #555;
+            border: 3px solid #000;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: #fff;
+            font-size: 12px;
+            overflow: hidden;
+        }
+        
+        #wheel1 { top: -50px; left: -120px; transform: rotate(0deg); }
+        #wheel2 { top: -50px; right: -120px; transform: rotate(0deg); }
+        #wheel3 { bottom: -50px; left: -120px; transform: rotate(0deg); }
+        #wheel4 { bottom: -50px; right: -120px; transform: rotate(0deg); }
+
+        .arrow {
+            width: 0; 
+            height: 0; 
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 15px solid #ff0;
+            position: absolute;
+        }
+
+        .wheel .arrow {
+            top: 10px;
+            left: 35px;
+            transform-origin: center;
+            transition: transform 0.5s;
+        }
+
+        #carDirection {
+            position: absolute;
+            top: 35px;
+            left: 50%;
+            width: 0; 
+            height: 0; 
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-bottom: 25px solid #0f0;
+            transform: translate(-50%, -100%) rotate(0deg);
+            transform-origin: center;
+            transition: transform 0.5s;
+        }
+
+        #carRotation {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0; 
+            height: 0; 
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-bottom: 20px solid #f00;
+            transform: translate(-50%, -100%) rotate(0deg);
+            transform-origin: center;
+            transition: transform 0.5s;
+        }
+
+        #carInfo {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            position: absolute;
+            bottom: 10px;
+        }
+        .info {
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div id="dashboard">
+        <h1>Mecanum Robot Dashboard</h1>
+        <div id="car">
+            <div class="wheel" id="wheel1">
+                1 - FL <br> <span>0 rad/s</span>
+                <div class="arrow" id="arrow1"></div>
+            </div>
+            <div class="wheel" id="wheel2">
+                2 - FR <br> <span>0 rad/s</span>
+                <div class="arrow" id="arrow2"></div>
+            </div>
+            <div class="wheel" id="wheel3">
+                3 - RL <br> <span>0 rad/s</span>
+                <div class="arrow" id="arrow3"></div>
+            </div>
+            <div class="wheel" id="wheel4">
+                4 - RR <br> <span>0 rad/s</span>
+                <div class="arrow" id="arrow4"></div>
+            </div>
+
+            <div id="carDirection"></div>
+
+            <div id="carRotation"></div>
+
+            <div id="carInfo">
+              <div class="info">X: <span id="speedX">0 m/s</span></div>
+              <div class="info">Y: <span id="speedY">0 m/s</span></div>
+              <div class="info">R: <span id="rotation">0 rad/s</span></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const wsUri = "ws://192.168.1.100:81/";
+        let websocket = new WebSocket(wsUri);
+
+        websocket.onopen = function(evt) {
+            console.log("Connected to WebSocket server.");
+        };
+
+        websocket.onmessage = function(evt) {
+            console.log("Received: " + evt.data);
+            let data = JSON.parse(evt.data);
+            updateUI(data);
+        };
+
+        websocket.onerror = function(evt) {
+            console.error("WebSocket error:", evt);
+        };
+
+        websocket.onclose = function(evt) {
+            console.log("WebSocket connection closed.");
+        };
+
+        function updateUI(data) {
+            updateWheel('wheel1', 'arrow1', data.wheel1);
+            updateWheel('wheel2', 'arrow2', data.wheel2);
+            updateWheel('wheel3', 'arrow3', data.wheel3);
+            updateWheel('wheel4', 'arrow4', data.wheel4);
+
+            document.getElementById('speedX').innerText = `${data.Vx.toFixed(2)} m/s`;
+            document.getElementById('speedY').innerText = `${data.Vy.toFixed(2)} m/s`;
+            document.getElementById('rotation').innerText = `${data.omega_z.toFixed(2)} rad/s`;
+
+            let angle = Math.atan2(data.Vy, data.Vx) * (180 / Math.PI);
+            document.getElementById('carDirection').style.transform = `translate(-50%, -100%) rotate(${angle}deg)`;
+
+            let rotationAngle = data.omega_z * (180 / Math.PI) * 10; // Scaling for visibility
+            document.getElementById('carRotation').style.transform = `translate(-50%, -100%) rotate(${rotationAngle}deg)`;
+        }
+
+        function updateWheel(wheelId, arrowId, velocity) {
+            let wheelSpeedElement = document.getElementById(wheelId).getElementsByTagName('span');
+            let arrowElement = document.getElementById(arrowId);
+            wheelSpeedElement.innerText = `${velocity.toFixed(2)} rad/s`;
+            
+            if (velocity > 0) {
+                arrowElement.style.transform = 'rotate(0deg)'; // Forward
+            } else if (velocity < 0) {
+                arrowElement.style.transform = 'rotate(180deg)'; // Backward
+            } else {
+                arrowElement.style.transform = 'rotate(0deg)'; // Neutral
+            }
+        }
+
+       

@@ -1,0 +1,98 @@
+#include <Arduino.h>
+/*
+ Controlling a servo position using a potentiometer (variable resistor)
+ by Michal Rinott <http://people.interaction-ivrea.it/m.rinott>
+
+ modified on 8 Nov 2013
+ by Scott Fitzgerald
+ http://www.arduino.cc/en/Tutorial/Knob
+*/
+
+#include <Arduino.h>
+/*
+ Controlling a servo position using a potentiometer (variable resistor)
+ by Michal Rinott <http://people.interaction-ivrea.it/m.rinott>
+
+ modified on 8 Nov 2013
+ by Scott Fitzgerald
+ http://www.arduino.cc/en/Tutorial/Knob
+*/
+
+#include <Servo.h>
+
+Servo myservo;  // create Servo object to control a servo
+
+int val, mapped_val;    // variable to read the value from the analog pin
+String logMsg;
+
+void setup() {
+  Serial.begin(115200);
+  myservo.attach(9);  // attaches the servo on pin 9 to the Servo object
+}
+
+void rotateMotor(int v) {
+ mapped_val = map(v, -45, 225, 0, 180);     // scale it for use with the servo (value between 0 and 180)
+  // mapped_val = map(v, 0, 270, 0, 180);
+  
+  logMsg = "Moving to - " + String(v) + " Real - " + String(mapped_val);
+  Serial.println(logMsg);
+  
+  myservo.write(mapped_val); 
+}
+
+void calibrate() {
+  val = 0;
+  rotateMotor(val);
+  delay(5000);
+
+
+  val = 180;
+  rotateMotor(val);
+  delay(5000);
+
+    val = 90;
+  rotateMotor(val);
+  delay(10000);
+
+}
+
+void move() {
+  // val = -45;
+  // rotateMotor(val);
+  // delay(5000);
+  
+  // val = 0;
+  // rotateMotor(val);
+  // delay(5000);
+
+  //   val = 90;
+  // rotateMotor(val);
+  // delay(5000);
+
+  // val = 180;
+  // rotateMotor(val);
+  // delay(10000);
+
+  // val = 225;
+  // rotateMotor(val);
+  // delay(5000);
+
+  // val = 90;
+  // rotateMotor(val);
+  // delay(10000);
+
+  val = 45;
+  rotateMotor(val);
+  delay(5000);
+
+
+  val = 100;
+  rotateMotor(val);
+  delay(5000);
+
+}
+
+void loop() {
+ calibrate();
+  // move();
+}

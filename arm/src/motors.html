@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Servo Control</title>
+    <style>
+      .servo {
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+        margin-bottom: 15px;
+      }
+
+      .servo input {
+        width: 300px;
+      }
+
+      p {
+        margin: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Servo Motor Control</h1>
+    
+    <div class="servo">
+      <label for="servoSlider-1">Servo 1 Angle:</label>
+      <!-- <input type="range" id="servoSlider-1" min="-40" max="220" value="90" oninput="sendServoValue(1, this.value)"> -->
+      <input type="range" id="servoSlider-1" min="-40" max="220" value="90" oninput="debounceSendServoValue(1, this.value)">
+      <p>Current Angle: <span id="angleValue-1">90</span>°</p>
+    </div>
+    
+    <div class="servo">
+      <label for="servoSlider-2">Servo 2 Angle:</label>
+      <!-- <input type="range" id="servoSlider-2" min="-40" max="220" value="90" oninput="sendServoValue(2, this.value)"> -->
+      <input type="range" id="servoSlider-2" min="-40" max="220" value="90" oninput="debounceSendServoValue(2, this.value)">
+      <p>Current Angle: <span id="angleValue-2">90</span>°</p>
+    </div>
+    
+    <div class="servo">
+      <label for="servoSlider-3">Servo 3 Angle:</label>
+      <!-- <input type="range" id="servoSlider-3" min="-40" max="220" value="90" oninput="sendServoValue(3, this.value)"> -->
+      <input type="range" id="servoSlider-3" min="-40" max="220" value="90" oninput="debounceSendServoValue(3, this.value)">
+      <p>Current Angle: <span id="angleValue-3">90</span>°</p>
+    </div>
+    
+    <div class="servo">
+      <label for="servoSlider-4">Servo 4 Angle:</label>
+      <!-- <input type="range" id="servoSlider-4" min="-40" max="220" value="90" oninput="sendServoValue(4, this.value)"> -->
+      <input type="range" id="servoSlider-4" min="-40" max="220" value="90" oninput="debounceSendServoValue(4, this.value)">
+      <p>Current Angle: <span id="angleValue-4">90</span>°</p>
+    </div>
+    
+    <div class="servo">
+      <label for="servoSlider-5">Servo 5 Angle:</label>
+      <!-- <input type="range" id="servoSlider-5" min="-40" max="220" value="90" oninput="sendServoValue(5, this.value)"> -->
+      <input type="range" id="servoSlider-5" min="-40" max="220" value="90" oninput="debounceSendServoValue(5, this.value)">
+      <p>Current Angle: <span id="angleValue-5">90</span>°</p>
+    </div>
+    
+    <div class="servo">
+      <label for="servoSlider-6">Servo 6 Angle:</label>
+      <!-- <input type="range" id="servoSlider-6" min="-40" max="220" value="90" oninput="sendServoValue(6, this.value)"> -->
+      <input type="range" id="servoSlider-6" min="-40" max="220" value="90" oninput="debounceSendServoValue(6, this.value)">
+      <p>Current Angle: <span id="angleValue-6">90</span>°</p>
+    </div>
+
+    <script>
+      let timeout = null;
+      
+      function debounceSendServoValue(id, value) {
+        // document.getElementById('angleValue').innerText = value;
+
+        // Clear the previous timeout if the slider is still being moved
+        if (timeout) {
+          clearTimeout(timeout);
+        }
+
+        timeout = setTimeout(function() {
+          sendServoValue(id, value);
+        }, 200);
+      }
+
+      function sendServoValue(id, value) {
+        document.getElementById('angleValue-' + id).innerText = value;
+
+        var xhr = new XMLHttpRequest();
+        // 192.168.0.129
+        console.log(id, value);
+        xhr.open("GET", "http://192.168.0.129/setServo?value=" + value + "&id=" + id, true);
+        xhr.send();
+      }
+    </script>
+  </body>
+</html>
