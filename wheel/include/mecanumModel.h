@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Arduino.h>
+#include "env.h"
 
 struct WheelVelocities {
   double w_1; // Front-Left Wheel
@@ -22,3 +23,6 @@ class MecanumModel {
 
     void displayWheelVelocities(const WheelVelocities& wheel_velocities);
 };
+
+extern MecanumModel robot_wheels;
+// WheelVelocities wheel_velocities;

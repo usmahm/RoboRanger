@@ -12,5 +12,13 @@ struct WHEEL
 
   void initialize();
 
-  void setVelocity(double velocity);
+  void set_velocity(double velocity);
 };
+
+namespace WHEELS {
+  extern WHEEL w_1;
+  extern WHEEL w_2;
+
+  extern WHEEL w_3;
+  extern WHEEL w_4;
+}
