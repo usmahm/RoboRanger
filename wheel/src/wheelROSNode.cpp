@@ -97,13 +97,13 @@ namespace WHEELROSNODE {
       &cmd_vel_subscriber,
       &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
-      "cmd_vel_subscriber"), "cmd subscription init");
+      "cmd_vel"), "cmd subscription init");
     
     RCCHECK(rclc_publisher_init_default(
       &robot_pose_publisher,
       &node,
       ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Pose),
-      "robot_pose_publisher"), "robot pose subscription init");
+      "pose"), "robot pose subscription init");
 
 
     RCCHECK(rclc_executor_init(&executor, &support.context, 1, &allocator), "executor init");
