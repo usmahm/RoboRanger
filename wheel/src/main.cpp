@@ -5,23 +5,23 @@
 
 MecanumModel robot_wheels(WHEEL_RADIUS, HALF_LENGTH_X, HALF_LENGTH_Y);
 
-double vx = 0.0;
+double vx = 1.0;
 double vy = 0.0;
-double omega_z = 2.0;
+double omega_z = 0.0;
 
 WheelVelocities wheel_velocities;
 
-WHEEL wheel_1(13, 12, 11);
-WHEEL wheel_2(9, 8, 10);
+WHEEL wheel_1(12, 26, 13);
+WHEEL wheel_2(32, 18, 27);
 
-WHEEL wheel_3(3, 2, 6);
-WHEEL wheel_4(7, 4, 5);
+WHEEL wheel_3(16, 17, 25);
+WHEEL wheel_4(19, 23, 33);
 
 void setup() {
-  Serial.begin(9600);
-  while (!Serial) {
-      ; // Wait for Serial to initialize (only needed for some boards)
-  }
+  Serial.begin(115200);
+  // while (!Serial) {
+  //     ; // Wait for Serial to initialize (only needed for some boards)
+  // }
 
   // Initialize motors
   wheel_1.initialize();
