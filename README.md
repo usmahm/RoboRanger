@@ -1,3 +1,7 @@
+# ROBORANGER
+
+![project image](https://github.com/user-attachments/assets/b242f7d6-85ef-4041-960a-4850c7081cd4)
+
 [NOT A DOCUMENTATION]
 # Command to run code[to setup run script later]
 
