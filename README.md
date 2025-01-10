@@ -19,4 +19,8 @@ sudo chmod 666 /dev/ttyUSB0
 source install/local_setup.bash - In microros_ws
 
 ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0
+
+// For the Lidar
+
+sudo chmod 666 /dev/ttyUSB0
 ```
