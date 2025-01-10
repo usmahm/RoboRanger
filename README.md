@@ -22,5 +22,5 @@ ros2 run micro_ros_agent micro_ros_agent serial --dev /dev/ttyUSB0
 
 // For the Lidar
 
-sudo chmod 666 /dev/ttyUSB0
+sudo chmod 777 /dev/ttyUSB0
 ```
