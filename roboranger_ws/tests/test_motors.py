@@ -43,7 +43,8 @@ def run_auto(ser: serial.Serial):
 
     for idx, name in MOTOR_NAMES.items():
         print(f"── Motor {idx} — {name} ──")
-        for spd, label in [(128, "half"), (220, "fast")]:
+        # for spd, label in [(128, "half"), (220, "fast")]:
+        for spd, label in [(128, "half"), (180, "fast")]:
             print(f"  Forward  @ {label} speed ({spd})…")
             r = motor(ser, idx, "F", spd)
             print(f"    [{r}]")

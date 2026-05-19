@@ -15,12 +15,27 @@ pio device monitor   # verify "INFO RoboRanger test firmware ready"
 
 ### 2. Install Python dependencies
 
+Create a virtual environment and install dependencies:
+
 ```bash
+cd roboranger_ws/tests
+python3 -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
+```
+
+Run tests from within the activated venv:
+
+```bash
+python3 test_motors.py
 ```
 
 > **Note:** `pyrealsense2` on Raspberry Pi requires installing the Intel RealSense SDK first.
 > See [librealsense Raspberry Pi installation guide](https://github.com/IntelRealSense/librealsense/blob/master/doc/installation_raspbian.md).
+> Then recreate the venv with `--system-site-packages` so it can access the system-installed bindings:
+> ```bash
+> python3 -m venv .venv --system-site-packages
+> ```
 
 ### 3. Find your serial ports
 

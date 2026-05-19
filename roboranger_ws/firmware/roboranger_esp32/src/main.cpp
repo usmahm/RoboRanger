@@ -24,40 +24,34 @@
 //
 // Each motor needs: IN1, IN2 (direction) and EN (PWM speed)
 
-#define M_FL_IN1  26
-#define M_FL_IN2  27
-#define M_FL_EN   14
+#define M_FL_IN1  12
+#define M_FL_IN2  26
+#define M_FL_EN   13
 
-#define M_FR_IN1  25
-#define M_FR_IN2  33
-#define M_FR_EN   32
+#define M_FR_IN1  18
+#define M_FR_IN2  32
+#define M_FR_EN   27
 
-#define M_RL_IN1  18
-#define M_RL_IN2  19
-#define M_RL_EN   5
+#define M_RL_IN1  16
+#define M_RL_IN2  17
+#define M_RL_EN   25
 
-#define M_RR_IN1  16
-#define M_RR_IN2  17
-#define M_RR_EN   4
+#define M_RR_IN1  23
+#define M_RR_IN2  19
+#define M_RR_EN   33
 
 // MPU6050 I2C — default ESP32 I2C pins
 #define MPU_SDA 21
 #define MPU_SCL 22
 
-// LEDC PWM — one channel per motor (0-3)
-// NOTE: If using ESP32 Arduino framework >= 3.0, replace ledcSetup/ledcAttachPin
-// with ledcAttach(pin, freq, resolution) and ledcWrite(pin, duty).
-#define PWM_FREQ 1000
-#define PWM_BITS 8   // 8-bit: duty 0-255
-
 // ─── Globals ──────────────────────────────────────────
-struct MotorPins { int in1, in2, en_ch; };
+struct MotorPins { int in1, in2, en; };
 
 MotorPins motors[4] = {
-    {M_FL_IN1, M_FL_IN2, 0},
-    {M_FR_IN1, M_FR_IN2, 1},
-    {M_RL_IN1, M_RL_IN2, 2},
-    {M_RR_IN1, M_RR_IN2, 3},
+    {M_FL_IN1, M_FL_IN2, M_FL_EN},
+    {M_FR_IN1, M_FR_IN2, M_FR_EN},
+    {M_RL_IN1, M_RL_IN2, M_RL_EN},
+    {M_RR_IN1, M_RR_IN2, M_RR_EN},
 };
 
 MPU6050 mpu;
@@ -84,7 +78,7 @@ void motorSet(int idx, int dir, int speed) {
         digitalWrite(motors[idx].in2, LOW);
         speed = 0;
     }
-    ledcWrite(motors[idx].en_ch, speed);
+    analogWrite(motors[idx].en, speed);
 }
 
 void allStop() {
@@ -141,15 +135,10 @@ void setup() {
     Serial.begin(115200);
 
     // Init motor pins
-    const int en_pins[]  = {M_FL_EN,  M_FR_EN,  M_RL_EN,  M_RR_EN};
-    const int in1_pins[] = {M_FL_IN1, M_FR_IN1, M_RL_IN1, M_RR_IN1};
-    const int in2_pins[] = {M_FL_IN2, M_FR_IN2, M_RL_IN2, M_RR_IN2};
-
     for (int i = 0; i < 4; i++) {
-        ledcSetup(i, PWM_FREQ, PWM_BITS);
-        ledcAttachPin(en_pins[i], i);
-        pinMode(in1_pins[i], OUTPUT);
-        pinMode(in2_pins[i], OUTPUT);
+        pinMode(motors[i].in1, OUTPUT);
+        pinMode(motors[i].in2, OUTPUT);
+        pinMode(motors[i].en, OUTPUT);
     }
     allStop();
 

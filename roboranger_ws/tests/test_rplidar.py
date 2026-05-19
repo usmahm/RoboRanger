@@ -113,6 +113,8 @@ def main():
     finally:
         print("\nStopping lidar…")
         lidar.stop()
+        time.sleep(3.0)
+        print("AHHHH")
         lidar.stop_motor()
         lidar.disconnect()
         print("Done.")
