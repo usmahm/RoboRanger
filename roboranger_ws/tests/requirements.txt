@@ -1,0 +1,6 @@
+# Python dependencies for RoboRanger hardware tests
+# Install with:  pip install -r requirements.txt
+
+pyserial>=3.5          # Tests 1, 2, 5, 6  (serial comms to ESP32)
+rplidar-roboticia>=0.9 # Test 3            (RPLidar standalone)
+pyrealsense2>=2.50     # Test 4            (Intel D435i)
