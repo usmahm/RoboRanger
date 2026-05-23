@@ -4,3 +4,9 @@ PLAN.md
 notes.txt
 **/.venv/
 **/.pio/
+docs/
+running.txt
+**/build/
+**/install/
+**/log/
+images/

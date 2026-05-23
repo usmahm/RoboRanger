@@ -1,0 +1,164 @@
+<?xml version="1.0"?>
+<robot name="roboranger" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <!-- ── Materials ───────────────────────────────────────────── -->
+  <material name="dark_grey">
+    <color rgba="0.2 0.2 0.2 1.0"/>
+  </material>
+  <material name="black">
+    <color rgba="0.05 0.05 0.05 1.0"/>
+  </material>
+  <material name="silver">
+    <color rgba="0.7 0.7 0.7 1.0"/>
+  </material>
+  <material name="blue">
+    <color rgba="0.1 0.4 0.8 1.0"/>
+  </material>
+
+  <!-- ── Inertia helpers ─────────────────────────────────────── -->
+  <xacro:macro name="box_inertia" params="m l w h">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(w*w+h*h)/12}" ixy="0" ixz="0"
+               iyy="${m*(l*l+h*h)/12}" iyz="0"
+               izz="${m*(l*l+w*w)/12}"/>
+    </inertial>
+  </xacro:macro>
+
+  <xacro:macro name="cylinder_inertia" params="m r l">
+    <inertial>
+      <mass value="${m}"/>
+      <inertia ixx="${m*(3*r*r+l*l)/12}" ixy="0" ixz="0"
+               iyy="${m*(3*r*r+l*l)/12}" iyz="0"
+               izz="${m*r*r/2}"/>
+    </inertial>
+  </xacro:macro>
+
+  <!-- ── Dimensions ─────────────────────────────────────────── -->
+  <xacro:property name="chassis_l"  value="0.30"/>
+  <xacro:property name="chassis_w"  value="0.30"/>
+  <xacro:property name="chassis_h"  value="0.08"/>
+  <xacro:property name="chassis_z"  value="0.105"/> <!-- centre height above ground -->
+
+  <xacro:property name="wheel_r"    value="0.08"/>
+  <xacro:property name="wheel_w"    value="0.05"/>
+  <!-- wheel centre positions relative to base_link -->
+  <xacro:property name="wheel_x"    value="0.10"/>  <!-- half wheelbase -->
+  <xacro:property name="wheel_y"    value="0.165"/> <!-- half track -->
+  <xacro:property name="wheel_z"    value="${wheel_r - chassis_z}"/> <!-- below chassis centre -->
+
+  <!-- ── base_footprint ─────────────────────────────────────── -->
+  <link name="base_footprint"/>
+
+  <joint name="base_footprint_joint" type="fixed">
+    <parent link="base_footprint"/>
+    <child  link="base_link"/>
+    <origin xyz="0 0 ${chassis_z}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ── Chassis (base_link) ────────────────────────────────── -->
+  <link name="base_link">
+    <visual>
+      <geometry>
+        <box size="${chassis_l} ${chassis_w} ${chassis_h}"/>
+      </geometry>
+      <material name="dark_grey"/>
+    </visual>
+    <collision>
+      <geometry>
+        <box size="${chassis_l} ${chassis_w} ${chassis_h}"/>
+      </geometry>
+    </collision>
+    <xacro:box_inertia m="5.0" l="${chassis_l}" w="${chassis_w}" h="${chassis_h}"/>
+  </link>
+
+  <!-- ── Wheel macro ────────────────────────────────────────── -->
+  <xacro:macro name="mecanum_wheel" params="name x_sign y_sign">
+    <link name="wheel_${name}_link">
+      <visual>
+        <!-- cylinder default axis is Z; rotate 90° around X to align axle with Y -->
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_r}" length="${wheel_w}"/>
+        </geometry>
+        <material name="black"/>
+      </visual>
+      <collision>
+        <origin xyz="0 0 0" rpy="${pi/2} 0 0"/>
+        <geometry>
+          <cylinder radius="${wheel_r}" length="${wheel_w}"/>
+        </geometry>
+      </collision>
+      <xacro:cylinder_inertia m="0.5" r="${wheel_r}" l="${wheel_w}"/>
+    </link>
+
+    <joint name="wheel_${name}_joint" type="continuous">
+      <parent link="base_link"/>
+      <child  link="wheel_${name}_link"/>
+      <origin xyz="${x_sign * wheel_x} ${y_sign * wheel_y} ${wheel_z}" rpy="0 0 0"/>
+      <axis xyz="0 1 0"/>
+    </joint>
+  </xacro:macro>
+
+  <!-- FL=front-left, FR=front-right, RL=rear-left, RR=rear-right -->
+  <!-- In ROS: +x=forward, +y=left                                  -->
+  <xacro:mecanum_wheel name="fl" x_sign=" 1" y_sign=" 1"/>
+  <xacro:mecanum_wheel name="fr" x_sign=" 1" y_sign="-1"/>
+  <xacro:mecanum_wheel name="rl" x_sign="-1" y_sign=" 1"/>
+  <xacro:mecanum_wheel name="rr" x_sign="-1" y_sign="-1"/>
+
+  <!-- ── IMU ───────────────────────────────────────────────── -->
+  <link name="imu_link">
+    <visual>
+      <geometry>
+        <box size="0.03 0.03 0.01"/>
+      </geometry>
+      <material name="blue"/>
+    </visual>
+    <xacro:box_inertia m="0.02" l="0.03" w="0.03" h="0.01"/>
+  </link>
+
+  <joint name="imu_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="imu_link"/>
+    <!-- mounted flat on top surface, at chassis centre -->
+    <origin xyz="0 0 ${chassis_h/2 + 0.005}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ── RPLidar A1 ─────────────────────────────────────────── -->
+  <link name="lidar_link">
+    <visual>
+      <geometry>
+        <cylinder radius="0.04" length="0.06"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <xacro:cylinder_inertia m="0.18" r="0.04" l="0.06"/>
+  </link>
+
+  <joint name="lidar_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="lidar_link"/>
+    <!-- top plate, offset toward the front -->
+    <origin xyz="0.08 0 ${chassis_h/2 + 0.03}" rpy="0 0 0"/>
+  </joint>
+
+  <!-- ── Intel D435i Camera ─────────────────────────────────── -->
+  <link name="camera_link">
+    <visual>
+      <geometry>
+        <box size="0.025 0.09 0.025"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <xacro:box_inertia m="0.072" l="0.025" w="0.09" h="0.025"/>
+  </link>
+
+  <joint name="camera_joint" type="fixed">
+    <parent link="base_link"/>
+    <child  link="camera_link"/>
+    <!-- mounted on front face, vertically centred -->
+    <origin xyz="${chassis_l/2 + 0.0125} 0 0" rpy="0 0 0"/>
+  </joint>
+
+</robot>
